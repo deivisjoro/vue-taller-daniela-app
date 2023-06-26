@@ -1,7 +1,8 @@
 <script setup>
 
-    import { getCurrentInstance } from "vue";
-    const instance = getCurrentInstance();
+    defineOptions({
+        inheritAttrs: false
+    })
 
     const emisores = defineEmits(['onCkeck']);
 

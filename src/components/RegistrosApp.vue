@@ -1,12 +1,35 @@
 <script setup>
 
-</script>
+    defineOptions({
+        inheritAttrs: false
+    })
+   
+    const props = defineProps({
+        fnOpenModal: Function,
+        registros: Array
+    })
 
+    const emisores = defineEmits(['onEditar', 'onEliminar']);
+
+    const openModal = () =>{
+        fnOpenModal();
+    }
+
+    const editar = (index)=>{
+        emisores('onEditar', index);
+    }
+
+    const eliminar = (index)=>{  
+        emisores('onEliminar', index);
+    }
+
+
+</script>
 
 <template>
     <div class="table-options">
 
-        <a href="#" id="link-crear-registro"> 
+        <a href="#" id="link-crear-registro" @click.prevent="fnOpenModal"> 
             <img src="images/add_icon.png" alt="icono agregar">
             Crear registro
         </a>
@@ -26,52 +49,21 @@
         </thead>
 
         <tbody>
-            <tr id="fila-1">
-                <td>Linux Centos</td>
-                <td>Linux</td>
-                <td>8.3</td>
-                <td>127.0.0.1</td>
-                <td>Desarrollo</td>
-                <td>Contabilidad</td>
+            <tr v-for="(registro, i) in registros" :key="i+registro.servidor">
+                <td>{{ registro.servidor }}</td>
+                <td>{{ registro.so }}</td>
+                <td>{{ registro.version }}</td>
+                <td>{{ registro.ip }}</td>
+                <td>{{ registro.ambiente }}</td>
+                <td>{{ registro.aplicacion }}</td>
+                
                 <td>                
-                    <a href="#" data-fila="1">
-                        <img src="images/edit_icon.png" alt="icono editar"  class="editar">
+                    <a href="#">
+                        <img src="images/edit_icon.png" alt="icono editar" class="editar" @click.prevent="editar(i)">
                     </a>               
-                    <a href="#" data-fila="1">
-                        <img src="images/delete_icon.png" alt="icono eliminar"  class="eliminar">
+                    <a href="#">
+                        <img src="images/delete_icon.png" alt="icono eliminar"  class="eliminar" @click.prevent="eliminar(i)">
                     </a>
-                </td>
-            </tr>
-            <tr id="fila-2">
-                <td>Windows Server</td>
-                <td>Windows</td>
-                <td>11</td>
-                <td>127.0.0.1</td>
-                <td>Desarrollo</td>
-                <td>Talento humano</td>
-                <td>
-                    <a href="#" data-fila="2">
-                        <img src="images/edit_icon.png" alt="icono editar" class="editar">
-                    </a> 
-                    <a href="#" data-fila="2">
-                        <img src="images/delete_icon.png" alt="icono eliminar" class="eliminar">
-                    </a>          
-                </td>
-            </tr>
-            <tr id="fila-3">
-                <td>Debian</td>
-                <td>Linux</td>
-                <td>12</td>
-                <td>127.0.0.1</td>
-                <td>Produccion</td>
-                <td>Facturacion</td>
-                <td>
-                    <a href="#" data-fila="3">
-                        <img src="images/edit_icon.png" alt="icono editar" class="editar">
-                    </a>
-                    <a href="#" data-fila="3">
-                        <img src="images/delete_icon.png" alt="icono eliminar" class="eliminar">
-                    </a>           
                 </td>
             </tr>
         </tbody>

@@ -6,7 +6,7 @@
 <template>
     <footer>
         <p>
-            Todos los derechos reservados &copy; - Daniela Ganem Iriarte - Desarrollo Web I 2023
+            &copy; Todos los derechos reservados - @deivisjoro - 2023
         </p>
     </footer>
 </template>

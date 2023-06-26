@@ -1,6 +1,10 @@
 <script setup>
     import { computed, reactive } from "vue";
 
+    defineOptions({
+        inheritAttrs: false
+    })
+
     const array = reactive(
                             [ 
                                 {server: "Server Up", tam: 10,},

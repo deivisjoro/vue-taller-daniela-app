@@ -1,12 +1,131 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, onMounted, reactive } from 'vue';
   import FooterApp from "./components/common/FooterApp.vue";
 
   const linkActivo = ref('home');
   const checked = ref(false);
+  const showModal = ref(false);
+  const actionModal = ref('ingresar');
+  const error = ref(false);
 
+  const inputServidor = ref('');
+  const inputSo = ref('');
+  const inputVersion = ref('');
+  const inputIp = ref('');
+  const inputAmbiente = ref('');
+  const inputAplicacion = ref('');
+  let registroEditar = 0;
+
+  onMounted(() => {
+    inputServidor.value.focus();
+  })
+  
   const fnChecked = () => {
     checked.value = !checked.value;
+  }
+
+  const fnOpenModal = () =>{
+    showModal.value = true;
+    actionModal.value = 'ingresar';
+    clearInputs();
+    inputServidor.value.focus();
+  }
+
+  const clearInputs = ()=>{
+    inputServidor.value.value = '';
+    inputSo.value.value = '';
+    inputVersion.value.value = '';
+    inputIp.value.value = '';
+    inputAmbiente.value.value = '';
+    inputAplicacion.value.value = '';  
+  }
+
+  const fnCloseModal = (e) =>{
+    if(!e.target.classList.contains('modal-container'))
+            return;
+    showModal.value = false;
+  }
+
+  let registros = reactive([
+    { 
+        servidor: 'Linux Centos', 
+        so: 'Linux', 
+        version: '8.3', 
+        ip: '127.0.0.1', 
+        ambiente: 'Desarrollo', 
+        aplicacion: 'Contabilidad'
+    },  
+    { 
+        servidor: 'Windows Server', 
+        so: 'Windows', 
+        version: '11', 
+        ip: '127.0.0.1', 
+        ambiente: 'Desarrollo', 
+        aplicacion: 'Talento humano' 
+    },  
+    { 
+        servidor: 'Debian', 
+        so: 'Linux', 
+        version: '12', 
+        ip: '127.0.0.1', 
+        ambiente: 'Produccion', 
+        aplicacion: 'Facturacion' 
+    }
+  ]);
+
+  const fnSaveItem = () => {
+
+    error.value = false;
+
+    if(inputServidor.value.value.trim()==='' || inputSo.value.value.trim()==='' || inputVersion.value.value.trim()==='' || inputIp.value.value.trim()==='' || inputAmbiente.value.value.trim()==='' || inputAplicacion.value.value.trim()===''){
+        error.value = true;
+        inputServidor.value.focus();
+        return;
+    }  
+    
+    const item = {
+        servidor: inputServidor.value.value,
+        so: inputSo.value.value,
+        version: inputVersion.value.value,
+        ip: inputIp.value.value,
+        ambiente: inputAmbiente.value.value,
+        aplicacion: inputAplicacion.value.value,
+    }
+
+    if(actionModal.value==='ingresar'){
+        registros.push(item);
+    } 
+    else if(actionModal.value==='editar'){
+        registros[registroEditar] = item;   
+    } 
+    
+    showModal.value = false;
+  }
+
+  const fnLoadItem = (index)=>{
+    actionModal.value = 'editar';
+    registroEditar = index;
+    inputServidor.value.value = registros[index].servidor;
+    inputSo.value.value = registros[index].so;
+    inputVersion.value.value = registros[index].version;
+    inputIp.value.value = registros[index].ip;
+    inputAmbiente.value.value = registros[index].ambiente;
+    inputAplicacion.value.value = registros[index].aplicacion; 
+    showModal.value = true;
+    inputServidor.value.focus();
+
+  }
+
+  const fnDeleteItem = (index)=>{
+    const item = registros[index];
+    if(item===undefined){
+        alert('Error al eliminar registro');
+        return;
+    }
+
+    if(!confirm('Desea eliminar el registro '+item.servidor+' ?')) return;
+
+    registros.splice(index, 1);
   }
   
 </script>
@@ -54,24 +173,35 @@
       </nav>
   </aside>
   <main class="main-content">
-    <router-view @onCkeck="fnChecked"></router-view>     
+    <router-view 
+        @onCkeck="fnChecked" 
+        :fnOpenModal="fnOpenModal" 
+        :registros="registros" 
+        @onEditar="fnLoadItem($event)" 
+        @onEliminar="fnDeleteItem($event)"
+    >
+    </router-view>     
   </main>
   <FooterApp />
-  <div class="modal-container modal-hide">    
+  <div class="modal-container" :class="{'modal-hide': !showModal}" @click="fnCloseModal($event)">    
       <div class="modal-dialog">
-          <form>
+          <form @submit.prevent="fnSaveItem">
               <span>Registro</span>            
               <br>
-              <input type="text" name="servidor" id="servidor" placeholder="Nombre servidor" />
-              <input type="text" name="so" id="so" placeholder="Sistema operativo" />
-              <input type="text" name="version" id="version" placeholder="Version" />
-              <input type="text" name="ip" id="ip" placeholder="ip" />
-              <input type="text" name="ambiente" id="ambiente" placeholder="ambiente" />
-              <input type="text" name="aplicacion" id="aplicacion" placeholder="aplicacion" />
+              <input ref="inputServidor" type="text" name="servidor" id="servidor" placeholder="Nombre servidor" />
+              <input ref="inputSo" type="text" name="so" id="so" placeholder="Sistema operativo" />
+              <input ref="inputVersion" type="text" name="version" id="version" placeholder="Version" />
+              <input ref="inputIp" type="text" name="ip" id="ip" placeholder="ip" />
+              <input ref="inputAmbiente" type="text" name="ambiente" id="ambiente" placeholder="ambiente" />
+              <input ref="inputAplicacion" type="text" name="aplicacion" id="aplicacion" placeholder="aplicacion" />
   
               <button type="submit">
                   Guardar
               </button>
+              
+              <div class="error" v-if="error">
+                Todos los campos son obligatorios
+              </div>
   
           </form>
   
@@ -595,7 +725,12 @@ footer{
     background-color: #166d16!important;
 }
 
-
+.error{
+    background-color: red;
+    color: #fff;
+    padding: 5px;
+    font-size: 12px;
+}
 
 
 </style>
